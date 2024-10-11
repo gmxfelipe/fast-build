@@ -49,7 +49,6 @@ ipcMain.handle('dialog:selectCrxFolder', async () => {
 });
 
 
-// Função para executar o arquivo .jar do AEM
 const runJarFile = (jarPath, jarDir, event) => {
     return new Promise((resolve, reject) => {
         const javaProcess = spawn('java', ['-jar', jarPath, '-v'], { cwd: jarDir });
@@ -91,16 +90,13 @@ const runJarFile = (jarPath, jarDir, event) => {
     });
 };
 
-// Função para iniciar o AEM e manipular o diretório CRX
 ipcMain.handle('startAEM', async (event, jarFilePath, crxPath) => {
-    // Verificar se o arquivo .jar foi selecionado
     if (!jarFilePath) {
         const message = 'Por favor, selecione um arquivo .jar válido.';
         event.sender.send('log-message', { type: 'error', message });
         return { success: false, message };
     }
 
-    // Verificar se o AEM já está em execução
     const isRunning = await isAEMRunning();
     if (isRunning) {
         const message = 'O AEM já está em execução. Encerre a instância e tente novamente.';
@@ -108,7 +104,6 @@ ipcMain.handle('startAEM', async (event, jarFilePath, crxPath) => {
         return { success: false, message };
     }
 
-    // Verificar e excluir o diretório CRX, se necessário
     if (crxPath) {
         if (fs.existsSync(crxPath)) {
             try {
@@ -125,7 +120,6 @@ ipcMain.handle('startAEM', async (event, jarFilePath, crxPath) => {
         }
     }
 
-    // Tentar iniciar o AEM
     try {
         event.sender.send('log-message', { type: 'info', message: 'Aguarde, AEM está iniciando...' });
         await runJarFile(jarFilePath, path.dirname(jarFilePath), event);
@@ -136,8 +130,6 @@ ipcMain.handle('startAEM', async (event, jarFilePath, crxPath) => {
         return { success: false, message };
     }
 });
-
-
 
 function isAEMRunning() {
     return new Promise((resolve) => {
